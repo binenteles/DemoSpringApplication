@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,40 +22,51 @@ public class UserService {
 
 
     public List<User> findUsersInAgeGroup(int x, int y) {
-        Iterable<User> allUsersIF = userRepositoryIF.findAll();
-        List<User> allUsers = userRepository.findAllUsers();
-
-        return allUsers.stream()
-                .filter(user -> user.getAge() > x && user.getAge() < y)
-                .collect(Collectors.toList());
+        return userRepositoryIF.getUsersByAgeBetween(x, y);
     }
 
     public void saveUser(User user) {
-        if (user.getAge() !=0 && user.getUsername() != null && user.getEmail() != null && user.getName() != null && user.getPassword() != null) {
+        if (user.getAge() != 0 && user.getUsername() != null && user.getEmail() != null && user.getName() != null && user.getPassword() != null) {
 //            userRepository.save(user);
             userRepositoryIF.save(user);
             log.info("User was created successfully");
         } else {
             throw new IllegalArgumentException("Please fill in all required fields.");
         }
-
-
     }
 
-    public User deleteUser(String username){
-        List<User> allUsers = userRepository.findAllUsers();
-        Integer index  = null;
-        for (User user : allUsers ){
-            if(user.getUsername().equals(username)){
-                index = allUsers.indexOf(user);
-            }
-        }
-        if( index != null){
-           return userRepository.delete(index);
-        }else{
-            throw new IllegalArgumentException("User not found");
-        }
+//        public void deleteUser(String username)
+//    {
+//        List<User> allUsers = userRepository.findAllUsers();
+//        allUsers.removeAll(allUsers.stream()
+//                .filter(user -> user.getUsername().equals(username))
+//                .collect(Collectors.toList()));
+//    }
 
+    @Transactional
+    public Integer deleteUserByUsername(String username) {
+
+        Integer userId = userRepositoryIF.deleteByUsername(username);
+
+        if (userId == 0) {
+            log.warn("User has not been deleted");
+        } else {
+            log.info("User with id: " + userId + " has been deleted");
+        }
+        return userId;
     }
+
+    public Integer deleteUserById(Integer id) {
+
+        Integer user = userRepositoryIF.deleteUserById(id);
+
+        if (user != 0) {
+            log.info("User with id: " + id + " has been deleted.");
+        } else {
+            log.info("User has not been deleted");
+        }
+        return user;
+    }
+
 }
 

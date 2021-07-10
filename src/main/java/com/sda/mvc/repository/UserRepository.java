@@ -2,6 +2,7 @@ package com.sda.mvc.repository;
 
 import com.sda.mvc.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 public class UserRepository {
     List<User> userList;
 
+    @Autowired
     public UserRepository(List<User> userList) {
         this.userList = userList;
         User user1 = new User(1, "Alex", "ajelescu", "pasworrd", "alexandu.jelescu@yahoo.com", 38);
@@ -35,8 +37,6 @@ public class UserRepository {
 //    public  User findUserByUsername(String username);
 
     public List<User> findAllUsers() {
-
-
         return userList;
     }
 
